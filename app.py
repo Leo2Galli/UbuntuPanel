@@ -1,34 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.')
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/console')
-def console():
-    return render_template('console.html')
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('.', filename)
 
-@app.route('/vps')
-def vps():
-    return render_template('vps.html')
-
-@app.route('/file_manager')
-def file_manager():
-    return render_template('file_manager.html')
-
-@app.route('/manage_nodes')
-def manage_nodes():
-    return render_template('manage_nodes.html')
-
-@app.route('/create_server')
-def create_server():
-    return render_template('create_server.html')
-
-@app.route('/other_page')
-def other_page():
-    return render_template('other_page.html')
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
