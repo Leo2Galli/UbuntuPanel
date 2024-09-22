@@ -3,6 +3,7 @@ echo "=========================================================="
 echo "  Pannello di Gestione Hosting - Installazione"
 echo "=========================================================="
 
+# Funzione per disinstallare il pannello
 uninstall_panel() {
     echo "Disinstallazione del pannello in corso..."
     if [ -d "UbuntuPanel" ]; then
@@ -11,8 +12,13 @@ uninstall_panel() {
     else
         echo "Pannello non trovato."
     fi
+    if [ -d "venv" ]; then
+        rm -rf venv
+        echo "Ambiente virtuale rimosso."
+    fi
 }
 
+# Funzione per installare un pacchetto
 install_package() {
     if ! dpkg -l | grep -q "$1"; then
         echo "Installazione di $1..."
@@ -22,9 +28,16 @@ install_package() {
     fi
 }
 
+# Controlla se si sta disinstallando
 if [ "$1" == "uninstall" ]; then
     uninstall_panel
     exit 0
+fi
+
+# Rimuovi le cartelle esistenti prima di installare
+if [ -d "UbuntuPanel" ] || [ -d "venv" ]; then
+    echo "Cartelle esistenti trovate. Rimuovere le cartelle 'UbuntuPanel' e 'venv'."
+    uninstall_panel
 fi
 
 echo "Controllo delle dipendenze..."
@@ -34,6 +47,7 @@ install_package docker.io
 install_package npm
 install_package git
 
+# Clona il repository se non esiste
 if [ ! -d "UbuntuPanel" ]; then
     echo "Clonazione del repository..."
     git clone https://github.com/Leo2Galli/UbuntuPanel
