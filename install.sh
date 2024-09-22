@@ -1,24 +1,14 @@
 #!/bin/bash
 echo "=========================================================="
 echo "  Pannello di Gestione Hosting - Installazione"
+echo "  Versione: 1.0.1"
+echo "  Autore: Leo (https://github.com/Leo2Galli)"
+echo "  Data: 2024"
+echo "  Descrizione: Script di installazione per configurare"
+echo "  il pannello di gestione hosting con Docker e supporto"
+echo "  multi-lingua."
 echo "=========================================================="
 
-# Funzione per disinstallare il pannello
-uninstall_panel() {
-    echo "Disinstallazione del pannello in corso..."
-    if [ -d "UbuntuPanel" ]; then
-        rm -rf UbuntuPanel
-        echo "Pannello disinstallato."
-    else
-        echo "Pannello non trovato."
-    fi
-    if [ -d "venv" ]; then
-        rm -rf venv
-        echo "Ambiente virtuale rimosso."
-    fi
-}
-
-# Funzione per installare un pacchetto
 install_package() {
     if ! dpkg -l | grep -q "$1"; then
         echo "Installazione di $1..."
@@ -28,28 +18,26 @@ install_package() {
     fi
 }
 
-# Chiedi se si desidera disinstallare
-read -p "Vuoi disinstallare il pannello? (s/n): " uninstall_choice
-if [[ "$uninstall_choice" == "s" || "$uninstall_choice" == "S" ]]; then
-    uninstall_panel
-    exit 0
+# Chiedi se disinstallare il pannello esistente
+if [ -d "UbuntuPanel" ]; then
+    read -p "Il pannello è già installato. Vuoi disinstallarlo? (s/n): " uninstall_choice
+    if [ "$uninstall_choice" == "s" ]; then
+        echo "Disinstallazione in corso..."
+        rm -rf UbuntuPanel
+        echo "Disinstallazione completata."
+        exit 0
+    fi
 fi
 
-# Rimuovi le cartelle esistenti prima di installare
-if [ -d "UbuntuPanel" ] || [ -d "venv" ]; then
-    echo "Cartelle esistenti trovate. Rimuovere le cartelle 'UbuntuPanel' e 'venv'."
-    uninstall_panel
-fi
-
+# Controlla e installa le dipendenze
 echo "Controllo delle dipendenze..."
 install_package python3-pip
 install_package python3-venv
 install_package docker.io
 install_package npm
 install_package git
-install_package ufw
 
-# Clona il repository se non esiste
+# Clona o aggiorna il repository
 if [ ! -d "UbuntuPanel" ]; then
     echo "Clonazione del repository..."
     git clone https://github.com/Leo2Galli/UbuntuPanel
@@ -60,45 +48,42 @@ else
     cd ..
 fi
 
+# Creazione di un ambiente virtuale
 echo "Creazione di un ambiente virtuale..."
 python3 -m venv UbuntuPanel/venv
 source UbuntuPanel/venv/bin/activate
 
+# Installazione delle dipendenze Python
 echo "Installazione delle dipendenze Python..."
-if [ -f "UbuntuPanel/requirements.txt" ]; then
-    pip install -r UbuntuPanel/requirements.txt
-else
-    echo "File requirements.txt non trovato."
-fi
+pip install -r UbuntuPanel/requirements.txt
 
+# Installazione delle dipendenze Node.js
 cd UbuntuPanel
-if [ -f "package.json" ]; then
+if [ ! -f "package.json" ]; then
+    echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
+else
     echo "Installazione delle dipendenze Node.js..."
     npm install
-else
-    echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
 fi
 
+# Chiedi all'utente di inserire la porta
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
-# Salva la porta in un file di configurazione
-echo "PANEL_PORT=$port" > .env
-
-# Modifica app.py per utilizzare la porta selezionata
-sed -i "s/port = 5000/port = $port/g" app.py
-
-# Configurazione UFW
+# Configura UFW
+echo "Configurazione di UFW..."
+sudo ufw enable
 if sudo ufw status | grep -q "$port"; then
-    echo "La porta $port è già attivata. Disattivandola e riattivandola..."
-    sudo ufw deny $port
-    sleep 1
-    sudo ufw allow $port
+    echo "La porta $port è già aperta."
 else
-    echo "Apertura della porta $port nel firewall..."
+    echo "Apertura della porta $port..."
     sudo ufw allow $port
 fi
 
+# Modifica il file app.py per usare la porta specificata
+sed -i "s/port = int(os.getenv(\"PANEL_PORT\", 5000))/port = $port/g" UbuntuPanel/app.py
+
+# Messaggio di completamento
 echo "Installazione completata!"
 echo "Avviare il pannello con il comando:"
 echo "cd UbuntuPanel && source venv/bin/activate && python app.py"
