@@ -5,7 +5,7 @@ disinstalla_pannello() {
     read -p "Vuoi disinstallare il pannello di gestione? (s/n): " scelta
     if [ "$scelta" == "s" ]; then
         echo "Disinstallazione in corso..."
-        rm -rf UbuntuPanel venv
+        rm -rf venv
         echo "Pannello disinstallato con successo."
         exit 0
     fi
@@ -43,12 +43,12 @@ crea_venv() {
 installa_dipendenze_python() {
     echo "Installazione delle dipendenze Python..."
     source venv/bin/activate
-    pip install -r UbuntuPanel/requirements.txt
+    pip install -r requirements.txt
 }
 
 installa_dipendenze_node() {
     echo "Installazione delle dipendenze Node.js..."
-    if [ -f "UbuntuPanel/package.json" ]; then
+    if [ -f "package.json" ]; then
         npm install
     else
         echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
@@ -81,16 +81,10 @@ installa_dipendenze_node
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
-# Salva la porta in un file .env per il pannello
-echo "PANEL_PORT=$port" > UbuntuPanel/.env
+# Aggiornamento del file app.py per utilizzare la porta scelta
+sed -i "s/5000/$port/g" app.py
 
-# Se richiesto, configura UFW
-read -p "Vuoi configurare UFW per l'accesso esterno? (s/n): " ufw_choice
-if [ "$ufw_choice" == "s" ]; then
-    echo "Apertura della porta $port..."
-    sudo ufw allow $port
-fi
-
+# Istruzioni finali
 echo "Installazione completata!"
-echo "Avvia il pannello con il comando:"
-echo "cd UbuntuPanel && source ../venv/bin/activate && python app.py"
+echo "Avviare il pannello con il comando:"
+echo "source venv/bin/activate && python app.py"
