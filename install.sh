@@ -86,9 +86,14 @@ crea_venv
 installa_dipendenze_python
 installa_dipendenze_node
 
+# Chiedi porta per eseguire il pannello
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
+# Salva la porta in un file .env per il pannello
+echo "PANEL_PORT=$port" > UbuntuPanel/.env
+
+# Se richiesto, configura UFW
 read -p "Vuoi configurare UFW per l'accesso esterno? (s/n): " ufw_choice
 if [ "$ufw_choice" == "s" ]; then
     echo "Apertura della porta $port..."
