@@ -1,1 +1,12 @@
-
+{
+  "name": "ubuntu-panel",
+  "version": "1.0.0",
+  "description": "Pannello di Gestione Hosting",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    // aggiungi qui le dipendenze necessarie
+  }
+}
