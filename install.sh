@@ -1,67 +1,29 @@
 #!/bin/bash
+echo "=========================================================="
+echo "  Pannello di Gestione Hosting - Installazione"
+echo "=========================================================="
 
-# Funzione per disinstallare il pannello
-disinstalla_pannello() {
-    read -p "Vuoi disinstallare il pannello di gestione? (s/n): " scelta
-    if [ "$scelta" == "s" ]; then
-        echo "Disinstallazione in corso..."
-        rm -rf venv
-        echo "Pannello disinstallato con successo."
-        exit 0
+uninstall_panel() {
+    echo "Disinstallazione del pannello in corso..."
+    if [ -d "UbuntuPanel" ]; then
+        rm -rf UbuntuPanel
+        echo "Pannello disinstallato."
+    else
+        echo "Pannello non trovato."
     fi
 }
 
-# Funzione per installare pacchetti
 install_package() {
     if ! dpkg -l | grep -q "$1"; then
         echo "Installazione di $1..."
         sudo apt install -y "$1"
     else
-        echo "$1 è già installato."
+        echo "$1 già installato."
     fi
 }
 
-# Funzione per aggiornare i file senza toccare le configurazioni
-aggiorna_repository() {
-    if [ ! -d "UbuntuPanel" ]; then
-        echo "Clonazione del repository..."
-        git clone https://github.com/Leo2Galli/UbuntuPanel
-    else
-        echo "Repository già presente. Aggiornamento..."
-        cd UbuntuPanel
-        git fetch origin
-        git reset --hard origin/main
-        cd ..
-    fi
-}
-
-crea_venv() {
-    echo "Creazione di un ambiente virtuale..."
-    python3 -m venv venv
-}
-
-installa_dipendenze_python() {
-    echo "Installazione delle dipendenze Python..."
-    source venv/bin/activate
-    pip install -r requirements.txt
-}
-
-installa_dipendenze_node() {
-    echo "Installazione delle dipendenze Node.js..."
-    if [ -f "package.json" ]; then
-        npm install
-    else
-        echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
-    fi
-}
-
-# Disinstalla pannello se richiesto
-disinstalla_pannello
-
-# Chiedi se installare il pannello
-read -p "Vuoi installare il pannello di gestione? (s/n): " scelta
-if [ "$scelta" != "s" ]; then
-    echo "Installazione annullata."
+if [ "$1" == "uninstall" ]; then
+    uninstall_panel
     exit 0
 fi
 
@@ -72,19 +34,41 @@ install_package docker.io
 install_package npm
 install_package git
 
-aggiorna_repository
-crea_venv
-installa_dipendenze_python
-installa_dipendenze_node
+if [ ! -d "UbuntuPanel" ]; then
+    echo "Clonazione del repository..."
+    git clone https://github.com/Leo2Galli/UbuntuPanel
+else
+    echo "Repository già presente. Aggiornamento..."
+    cd UbuntuPanel
+    git pull
+    cd ..
+fi
 
-# Chiedi porta per eseguire il pannello
+echo "Creazione di un ambiente virtuale..."
+python3 -m venv UbuntuPanel/venv
+source UbuntuPanel/venv/bin/activate
+
+echo "Installazione delle dipendenze Python..."
+if [ -f "UbuntuPanel/requirements.txt" ]; then
+    pip install -r UbuntuPanel/requirements.txt
+else
+    echo "File requirements.txt non trovato."
+fi
+
+cd UbuntuPanel
+if [ -f "package.json" ]; then
+    echo "Installazione delle dipendenze Node.js..."
+    npm install
+else
+    echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
+fi
+
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
-# Aggiornamento del file app.py per utilizzare la porta scelta
-sed -i "s/5000/$port/g" app.py
+# Imposta la porta come variabile d'ambiente
+echo "PANEL_PORT=$port" >> .env
 
-# Istruzioni finali
 echo "Installazione completata!"
 echo "Avviare il pannello con il comando:"
 echo "source venv/bin/activate && python app.py"
