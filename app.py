@@ -5,10 +5,11 @@ import json
 app = Flask(__name__)
 client = docker.from_env()
 
-# Carica la configurazione della lingua
+# Carica la configurazione della lingua e della porta
 with open('config.json') as config_file:
     config = json.load(config_file)
     selected_language = config.get("language", "en")
+    panel_port = config.get("port", 5000)
 
 # Carica le traduzioni
 with open('translations.json') as trans_file:
@@ -54,4 +55,4 @@ def create_container():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=panel_port)
