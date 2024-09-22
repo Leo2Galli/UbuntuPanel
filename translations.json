@@ -1,1 +1,57 @@
-
+{
+  "it": {
+    "title": "Pannello di Gestione Hosting",
+    "create_container": "Crea un nuovo container",
+    "image": "Immagine Docker",
+    "name": "Nome del container",
+    "ports": "Porte (esempio: 80:80)",
+    "create": "Crea",
+    "start": "Avvia",
+    "stop": "Ferma",
+    "status": "Stato"
+  },
+  "en": {
+    "title": "Hosting Management Panel",
+    "create_container": "Create a new container",
+    "image": "Docker Image",
+    "name": "Container Name",
+    "ports": "Ports (e.g., 80:80)",
+    "create": "Create",
+    "start": "Start",
+    "stop": "Stop",
+    "status": "Status"
+  },
+  "es": {
+    "title": "Panel de Gestión de Hosting",
+    "create_container": "Crear un nuevo contenedor",
+    "image": "Imagen Docker",
+    "name": "Nombre del contenedor",
+    "ports": "Puertos (ej., 80:80)",
+    "create": "Crear",
+    "start": "Iniciar",
+    "stop": "Detener",
+    "status": "Estado"
+  },
+  "de": {
+    "title": "Hosting-Management-Panel",
+    "create_container": "Erstellen Sie einen neuen Container",
+    "image": "Docker-Bild",
+    "name": "Container-Name",
+    "ports": "Ports (z.B. 80:80)",
+    "create": "Erstellen",
+    "start": "Starten",
+    "stop": "Stoppen",
+    "status": "Status"
+  },
+  "zh": {
+    "title": "托管管理面板",
+    "create_container": "创建新容器",
+    "image": "Docker镜像",
+    "name": "容器名称",
+    "ports": "端口 (例如 80:80)",
+    "create": "创建",
+    "start": "启动",
+    "stop": "停止",
+    "status": "状态"
+  }
+}
