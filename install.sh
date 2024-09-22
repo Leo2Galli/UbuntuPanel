@@ -46,13 +46,22 @@ echo "Creazione di un ambiente virtuale..."
 python3 -m venv UbuntuPanel/venv
 source UbuntuPanel/venv/bin/activate
 
-echo "Installazione delle dipendenze Python..."
-pip install -r UbuntuPanel/requirements.txt
+# Controllo dell'esistenza di requirements.txt
+if [ -f "UbuntuPanel/requirements.txt" ]; then
+    echo "Installazione delle dipendenze Python..."
+    pip install -r UbuntuPanel/requirements.txt
+else
+    echo "File requirements.txt non trovato. Assicurati che esista."
+fi
 
 cd UbuntuPanel
-if [ ! -d "node_modules" ]; then
-    echo "Installazione delle dipendenze Node.js..."
-    npm install
+if [ -f "package.json" ]; then
+    if [ ! -d "node_modules" ]; then
+        echo "Installazione delle dipendenze Node.js..."
+        npm install
+    fi
+else
+    echo "File package.json non trovato. Assicurati che esista."
 fi
 
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
