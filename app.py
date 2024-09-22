@@ -18,6 +18,14 @@ def vps():
 def file_manager():
     return render_template('file_manager.html')
 
+@app.route('/manage_nodes')
+def manage_nodes():
+    return render_template('manage_nodes.html')
+
+@app.route('/create_server')
+def create_server():
+    return render_template('create_server.html')
+
 @app.route('/other_page')
 def other_page():
     return render_template('other_page.html')
