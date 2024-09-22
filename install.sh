@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Funzione per chiedere se disinstallare il pannello
+# Funzione per disinstallare il pannello
 disinstalla_pannello() {
     read -p "Vuoi disinstallare il pannello di gestione? (s/n): " scelta
     if [ "$scelta" == "s" ]; then
@@ -11,7 +11,7 @@ disinstalla_pannello() {
     fi
 }
 
-# Funzione per installare un pacchetto se non è già presente
+# Funzione per installare pacchetti
 install_package() {
     if ! dpkg -l | grep -q "$1"; then
         echo "Installazione di $1..."
@@ -21,7 +21,7 @@ install_package() {
     fi
 }
 
-# Funzione per aggiornare il repository GitHub
+# Funzione per aggiornare i file senza toccare le configurazioni
 aggiorna_repository() {
     if [ ! -d "UbuntuPanel" ]; then
         echo "Clonazione del repository..."
@@ -35,7 +35,6 @@ aggiorna_repository() {
     fi
 }
 
-# Funzione per aggiornare solo i file HTML, CSS e JS
 aggiorna_html_css_js() {
     echo "Aggiornamento dei file HTML, CSS, JS..."
     cp -r UbuntuPanel/*.html .
@@ -44,20 +43,17 @@ aggiorna_html_css_js() {
     echo "Aggiornamento completato."
 }
 
-# Funzione per creare e attivare l'ambiente virtuale Python
 crea_venv() {
     echo "Creazione di un ambiente virtuale..."
     python3 -m venv venv
     source venv/bin/activate
 }
 
-# Funzione per installare le dipendenze Python
 installa_dipendenze_python() {
     echo "Installazione delle dipendenze Python..."
     pip install -r UbuntuPanel/requirements.txt
 }
 
-# Funzione per installare le dipendenze Node.js
 installa_dipendenze_node() {
     echo "Installazione delle dipendenze Node.js..."
     if [ -f "UbuntuPanel/package.json" ]; then
@@ -67,7 +63,7 @@ installa_dipendenze_node() {
     fi
 }
 
-# Chiedi se disinstallare il pannello
+# Disinstalla pannello se richiesto
 disinstalla_pannello
 
 # Chiedi se installare il pannello
@@ -77,7 +73,6 @@ if [ "$scelta" != "s" ]; then
     exit 0
 fi
 
-# Controllo delle dipendenze
 echo "Controllo delle dipendenze..."
 install_package python3-pip
 install_package python3-venv
@@ -85,20 +80,12 @@ install_package docker.io
 install_package npm
 install_package git
 
-# Aggiorna il repository GitHub e i file HTML, CSS, JS
 aggiorna_repository
 aggiorna_html_css_js
-
-# Crea e attiva l'ambiente virtuale
 crea_venv
-
-# Installa le dipendenze Python
 installa_dipendenze_python
-
-# Installa le dipendenze Node.js
 installa_dipendenze_node
 
-# Configura UFW per l'accesso esterno
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
@@ -108,7 +95,6 @@ if [ "$ufw_choice" == "s" ]; then
     sudo ufw allow $port
 fi
 
-# Messaggio di fine installazione
 echo "Installazione completata!"
 echo "Avvia il pannello con il comando:"
 echo "source venv/bin/activate && python app.py"
