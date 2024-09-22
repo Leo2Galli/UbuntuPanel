@@ -47,6 +47,7 @@ install_package python3-venv
 install_package docker.io
 install_package npm
 install_package git
+install_package ufw
 
 # Clona il repository se non esiste
 if [ ! -d "UbuntuPanel" ]; then
@@ -86,6 +87,17 @@ echo "PANEL_PORT=$port" > .env
 
 # Modifica app.py per utilizzare la porta selezionata
 sed -i "s/port = 5000/port = $port/g" app.py
+
+# Configurazione UFW
+if sudo ufw status | grep -q "$port"; then
+    echo "La porta $port è già attivata. Disattivandola e riattivandola..."
+    sudo ufw deny $port
+    sleep 1
+    sudo ufw allow $port
+else
+    echo "Apertura della porta $port nel firewall..."
+    sudo ufw allow $port
+fi
 
 echo "Installazione completata!"
 echo "Avviare il pannello con il comando:"
