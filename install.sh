@@ -23,7 +23,7 @@ if [ -d "UbuntuPanel" ]; then
     read -p "Il pannello è già installato. Vuoi disinstallarlo? (s/n): " uninstall_choice
     if [ "$uninstall_choice" == "s" ]; then
         echo "Disinstallazione in corso..."
-        rm -rf UbuntuPanel
+        rm -rf ~/Scrivania/UbuntuPanel
         echo "Disinstallazione completata."
         exit 0
     fi
