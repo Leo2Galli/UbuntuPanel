@@ -9,6 +9,17 @@ echo "  il pannello di gestione hosting con Docker e supporto"
 echo "  multi-lingua."
 echo "=========================================================="
 
+# Funzione per installare i pacchetti se non già presenti
+install_package() {
+    if ! dpkg -l | grep -q "$1"; then
+        echo "Installazione di $1..."
+        sudo apt install -y "$1"
+    else
+        echo "$1 già installato."
+    fi
+}
+
+# Controlla se la directory esiste
 if [ -d "UbuntuPanel" ]; then
     read -p "Il pannello è già presente. Vuoi eliminarlo? (s/n): " remove_choice
     if [ "$remove_choice" == "s" ]; then
@@ -27,15 +38,6 @@ else
     git clone https://github.com/Leo2Galli/UbuntuPanel
 fi
 
-install_package() {
-    if ! dpkg -l | grep -q "$1"; then
-        echo "Installazione di $1..."
-        sudo apt install -y "$1"
-    else
-        echo "$1 già installato."
-    fi
-}
-
 echo "Controllo delle dipendenze..."
 install_package python3-pip
 install_package python3-venv
@@ -50,7 +52,7 @@ source UbuntuPanel/venv/bin/activate
 # Controllo dell'esistenza di requirements.txt
 if [ -f "UbuntuPanel/requirements.txt" ]; then
     echo "Installazione delle dipendenze Python..."
-    pip install -r UbuntuPanel/requirements.txt
+    pip install -r UbuntuPanel/requirements.txt || { echo "Errore durante l'installazione delle dipendenze Python."; exit 1; }
 else
     echo "File requirements.txt non trovato. Assicurati che esista."
 fi
@@ -59,7 +61,7 @@ cd UbuntuPanel
 if [ -f "package.json" ]; then
     if [ ! -d "node_modules" ]; then
         echo "Installazione delle dipendenze Node.js..."
-        npm install
+        npm install || { echo "Errore durante l'installazione delle dipendenze Node.js."; exit 1; }
     fi
 else
     echo "File package.json non trovato. Assicurati che esista."
