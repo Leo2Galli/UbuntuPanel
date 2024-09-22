@@ -1,4 +1,6 @@
 #!/bin/bash
+chmod +x install.sh  # Rendi lo script eseguibile automaticamente
+
 echo "=========================================================="
 echo "  Pannello di Gestione Hosting - Installazione"
 echo "  Versione: 1.0.0"
@@ -8,6 +10,22 @@ echo "  Descrizione: Script di installazione per configurare"
 echo "  il pannello di gestione hosting con Docker e supporto"
 echo "  multi-lingua."
 echo "=========================================================="
+
+# Funzione per rimuovere il pannello
+remove_panel() {
+    echo "Rimuovendo il pannello di gestione..."
+    sudo docker stop pannello || true
+    sudo docker rm pannello || true
+    sudo rm -rf /path/to/pannello-directory
+    echo "Pannello rimosso con successo."
+    exit 0
+}
+
+# Controllo se si desidera rimuovere il pannello
+read -p "Vuoi rimuovere il pannello di gestione? (s/n): " remove_choice
+if [[ "$remove_choice" == "s" ]]; then
+    remove_panel
+fi
 
 echo "Benvenuto nel setup del Pannello di Gestione Hosting!"
 echo "Scegli la lingua / Choose your language:"
@@ -50,15 +68,34 @@ echo "{ \"language\": \"$lang\", \"port\": $port }" > config.json
 
 # Aggiorna i pacchetti e installa Docker
 sudo apt update && sudo apt upgrade -y
-sudo apt install docker.io -y
+sudo apt install docker.io git python3-pip -y
 
-# Installazione di Python e dipendenze Flask
-sudo apt install python3-pip -y
-pip3 install -r requirements.txt
+# Clona la repository
+if [ ! -d "UbuntuPanel" ]; then
+    git clone https://github.com/Leo2Galli/UbuntuPanel.git
+fi
+
+# Naviga nella directory del progetto
+cd UbuntuPanel || exit
+
+# Installazione delle dipendenze Python
+pip3 install --user -r requirements.txt
 
 # Installazione delle dipendenze React per il frontend
 npm install
 npm run build
 
 # Avviare il backend
-python3 app.py
+python3 app.py &
+
+# Richiedi configurazione UFW
+read -p "Vuoi configurare UFW per l'accesso esterno? (s/n): " ufw_choice
+if [[ "$ufw_choice" == "s" ]]; then
+    sudo ufw allow $port/tcp
+    sudo ufw enable
+    echo "UFW configurato. Porta $port aperta."
+fi
+
+# Stampa l'indirizzo IP e la porta
+IP=$(hostname -I | awk '{print $1}')
+echo "Il pannello è accessibile all'indirizzo: http://$IP:$port"
