@@ -14,7 +14,8 @@ if [ -d "UbuntuPanel" ]; then
     if [ "$remove_choice" == "s" ]; then
         echo "Eliminazione del pannello..."
         rm -rf UbuntuPanel
-        echo "Pannello eliminato. Procedendo con una nuova installazione..."
+        echo "Pannello eliminato. Puoi eseguire di nuovo questo script per installarlo."
+        exit 0
     else
         echo "Procedendo con l'installazione esistente..."
         cd UbuntuPanel
