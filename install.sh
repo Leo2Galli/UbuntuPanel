@@ -9,6 +9,23 @@ echo "  il pannello di gestione hosting con Docker e supporto"
 echo "  multi-lingua."
 echo "=========================================================="
 
+if [ -d "UbuntuPanel" ]; then
+    read -p "Il pannello è già presente. Vuoi eliminarlo? (s/n): " remove_choice
+    if [ "$remove_choice" == "s" ]; then
+        echo "Eliminazione del pannello..."
+        rm -rf UbuntuPanel
+        echo "Pannello eliminato. Procedendo con una nuova installazione..."
+    else
+        echo "Procedendo con l'installazione esistente..."
+        cd UbuntuPanel
+        git pull
+        cd ..
+    fi
+else
+    echo "Clonazione del repository..."
+    git clone https://github.com/Leo2Galli/UbuntuPanel
+fi
+
 install_package() {
     if ! dpkg -l | grep -q "$1"; then
         echo "Installazione di $1..."
@@ -24,16 +41,6 @@ install_package python3-venv
 install_package docker.io
 install_package npm
 install_package git
-
-if [ ! -d "UbuntuPanel" ]; then
-    echo "Clonazione del repository..."
-    git clone https://github.com/Leo2Galli/UbuntuPanel
-else
-    echo "Repository già presente. Aggiornamento..."
-    cd UbuntuPanel
-    git pull
-    cd ..
-fi
 
 echo "Creazione di un ambiente virtuale..."
 python3 -m venv UbuntuPanel/venv
