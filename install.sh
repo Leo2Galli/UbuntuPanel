@@ -28,8 +28,9 @@ install_package() {
     fi
 }
 
-# Controlla se si sta disinstallando
-if [ "$1" == "uninstall" ]; then
+# Chiedi se si desidera disinstallare
+read -p "Vuoi disinstallare il pannello? (s/n): " uninstall_choice
+if [[ "$uninstall_choice" == "s" || "$uninstall_choice" == "S" ]]; then
     uninstall_panel
     exit 0
 fi
@@ -80,9 +81,12 @@ fi
 read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
 port=${port_choice:-5000}
 
-# Imposta la porta come variabile d'ambiente
-echo "PANEL_PORT=$port" >> .env
+# Salva la porta in un file di configurazione
+echo "PANEL_PORT=$port" > .env
+
+# Modifica app.py per utilizzare la porta selezionata
+sed -i "s/port = 5000/port = $port/g" app.py
 
 echo "Installazione completata!"
 echo "Avviare il pannello con il comando:"
-echo "source venv/bin/activate && python app.py"
+echo "cd UbuntuPanel && source venv/bin/activate && python app.py"
