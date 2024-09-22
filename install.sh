@@ -35,22 +35,14 @@ aggiorna_repository() {
     fi
 }
 
-aggiorna_html_css_js() {
-    echo "Aggiornamento dei file HTML, CSS, JS..."
-    cp -r UbuntuPanel/*.html .
-    cp -r UbuntuPanel/*.css .
-    cp -r UbuntuPanel/*.js .
-    echo "Aggiornamento completato."
-}
-
 crea_venv() {
     echo "Creazione di un ambiente virtuale..."
     python3 -m venv venv
-    source venv/bin/activate
 }
 
 installa_dipendenze_python() {
     echo "Installazione delle dipendenze Python..."
+    source venv/bin/activate
     pip install -r UbuntuPanel/requirements.txt
 }
 
@@ -81,7 +73,6 @@ install_package npm
 install_package git
 
 aggiorna_repository
-aggiorna_html_css_js
 crea_venv
 installa_dipendenze_python
 installa_dipendenze_node
@@ -102,4 +93,4 @@ fi
 
 echo "Installazione completata!"
 echo "Avvia il pannello con il comando:"
-echo "source venv/bin/activate && python app.py"
+echo "cd UbuntuPanel && source ../venv/bin/activate && python app.py"
