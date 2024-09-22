@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Pannello di Gestione Hosting</title>
 </head>
 <body>
@@ -15,6 +16,53 @@
     <div class="content">
         <h2>Benvenuto nel Pannello di Gestione!</h2>
         <p>Utilizza il menu a sinistra per navigare.</p>
+        <h3>Informazioni sul server</h3>
+        <p><strong>IP del server:</strong> <span id="server-ip"></span></p>
+        
+        <h3>Statistiche di utilizzo</h3>
+        <canvas id="usageChart" width="400" height="200"></canvas>
+        
+        <script>
+            // Funzione per ottenere l'IP del server
+            async function getServerIP() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    document.getElementById('server-ip').innerText = data.ip;
+                } catch (error) {
+                    console.error('Errore nel recupero dell\'IP:', error);
+                }
+            }
+
+            // Grafico di utilizzo delle risorse
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            const usageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['RAM Usata', 'RAM Disponibile'],
+                    datasets: [{
+                        label: 'Utilizzo della RAM',
+                        data: [70, 30], // Sostituisci con dati reali
+                        backgroundColor: ['#ff6384', '#36a2eb'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Utilizzo della RAM'
+                        }
+                    }
+                }
+            });
+
+            // Chiamata alla funzione per ottenere l'IP
+            getServerIP();
+        </script>
     </div>
 </body>
 </html>
