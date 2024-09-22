@@ -1,6 +1,4 @@
 #!/bin/bash
-chmod +x install.sh  # Rendi lo script eseguibile automaticamente
-
 echo "=========================================================="
 echo "  Pannello di Gestione Hosting - Installazione"
 echo "  Versione: 1.0.0"
@@ -68,7 +66,7 @@ echo "{ \"language\": \"$lang\", \"port\": $port }" > config.json
 
 # Aggiorna i pacchetti e installa Docker
 sudo apt update && sudo apt upgrade -y
-sudo apt install docker.io git python3-pip -y
+sudo apt install docker.io git python3-pip python3-venv nodejs npm -y
 
 # Clona la repository
 if [ ! -d "UbuntuPanel" ]; then
@@ -78,15 +76,25 @@ fi
 # Naviga nella directory del progetto
 cd UbuntuPanel || exit
 
+# Crea un ambiente virtuale per Python
+python3 -m venv venv
+source venv/bin/activate
+
 # Installazione delle dipendenze Python
-pip3 install --user -r requirements.txt
+pip install -r requirements.txt
+
+# Verifica che npm sia installato
+if ! command -v npm &> /dev/null; then
+    echo "npm non è installato. Assicurati di aver installato Node.js correttamente."
+    exit 1
+fi
 
 # Installazione delle dipendenze React per il frontend
 npm install
 npm run build
 
 # Avviare il backend
-python3 app.py &
+python app.py &
 
 # Richiedi configurazione UFW
 read -p "Vuoi configurare UFW per l'accesso esterno? (s/n): " ufw_choice
