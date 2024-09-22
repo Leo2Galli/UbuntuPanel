@@ -1,5 +1,15 @@
 #!/bin/bash
+echo "=========================================================="
+echo "  Pannello di Gestione Hosting - Installazione"
+echo "  Versione: 1.0.0"
+echo "  Autore: Leo (https://github.com/Leo2Galli)"
+echo "  Data: 2024"
+echo "  Descrizione: Script di installazione per configurare"
+echo "  il pannello di gestione hosting con Docker e supporto"
+echo "  multi-lingua."
+echo "=========================================================="
 
+echo "Benvenuto nel setup del Pannello di Gestione Hosting!"
 echo "Scegli la lingua / Choose your language:"
 echo "1) Italiano"
 echo "2) English"
@@ -26,13 +36,17 @@ case $lang_choice in
         lang="zh"
         ;;
     *)
-        echo "Lingua non valida, defaulting to English"
+        echo "Lingua non valida, impostazione di default: English"
         lang="en"
         ;;
 esac
 
+# Richiedi la porta su cui eseguire il pannello
+read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
+port=${port_choice:-5000}
+
 # Salva la configurazione in un file config.json
-echo "{ \"language\": \"$lang\" }" > config.json
+echo "{ \"language\": \"$lang\", \"port\": $port }" > config.json
 
 # Aggiorna i pacchetti e installa Docker
 sudo apt update && sudo apt upgrade -y
