@@ -7,6 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    // aggiungi qui le dipendenze necessarie
+    "express": "^4.17.1",  // Esempio di dipendenza, aggiungi le tue
+    "flask": "^2.0.1"
   }
 }
