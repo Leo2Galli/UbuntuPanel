@@ -3,19 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello di Controllo</title>
     <link rel="stylesheet" href="style.css">
-    <title>Pannello di Gestione Hosting</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Benvenuto nel Pannello di Gestione Hosting</h1>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/console">Console</a>
-        <a href="/vps">VPS</a>
-        <a href="/file_manager">File Manager</a>
-        <a href="/manage_nodes">Gestione Nodi</a>
-        <a href="/create_server">Crea Server</a>
-        <a href="/other_page">Altro</a>
-    </nav>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="console.html">Console</a></li>
+            <li><a href="nodes.html">Nodi</a></li>
+            <li><a href="servers.html">Server</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Pannello di Controllo</h1>
+        <div class="charts">
+            <canvas id="ramChart"></canvas>
+            <canvas id="cpuChart"></canvas>
+            <canvas id="diskChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Grafico RAM
+        const ramCtx = document.getElementById('ramChart').getContext('2d');
+        const ramChart = new Chart(ramCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Usata', 'Libera'],
+                datasets: [{
+                    data: [60, 40], // Esempio di valori RAM
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            }
+        });
+
+        // Grafico CPU
+        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+        const cpuChart = new Chart(cpuCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Usata', 'Libera'],
+                datasets: [{
+                    data: [30, 70], // Esempio di valori CPU
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            }
+        });
+
+        // Grafico Disco
+        const diskCtx = document.getElementById('diskChart').getContext('2d');
+        const diskChart = new Chart(diskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Usato', 'Libero'],
+                datasets: [{
+                    data: [80, 20], // Esempio di valori disco
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            }
+        });
+    </script>
 </body>
 </html>
