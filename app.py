@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import subprocess
+import os
 
 app = Flask(__name__)
 
@@ -21,4 +22,6 @@ def execute_command():
         return e.output.decode()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    # Ottieni la porta dal file di configurazione o usa la porta di default 5000
+    port = int(os.getenv("PANEL_PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
