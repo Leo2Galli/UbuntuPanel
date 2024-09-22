@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "=========================================================="
 echo "  Pannello di Gestione Hosting - Installazione"
-echo "  Versione: 1.0.3"
+echo "  Versione: 1.0.4"
 echo "  Autore: Leo (https://github.com/Leo2Galli)"
 echo "  Data: 2024"
 echo "  Descrizione: Script di installazione per configurare"
@@ -19,14 +19,16 @@ install_package() {
     fi
 }
 
-# Controllo se il pannello è già installato
-if [ -d "UbuntuPanel" ]; then
-    read -p "Il pannello è già installato. Vuoi disinstallarlo? (s/n): " uninstall_choice
-    if [ "$uninstall_choice" == "s" ]; then
+# Chiedere se si vuole disinstallare il pannello
+read -p "Vuoi disinstallare il pannello? (s/n): " uninstall_choice
+if [ "$uninstall_choice" == "s" ]; then
+    if [ -d "UbuntuPanel" ]; then
         rm -rf UbuntuPanel
         echo "Pannello disinstallato."
-        exit 0
+    else
+        echo "Il pannello non è installato."
     fi
+    exit 0
 fi
 
 # Chiedere se si vuole installare il pannello
@@ -68,6 +70,11 @@ install_package git
 if [ ! -d "UbuntuPanel" ]; then
     echo "Clonazione del repository..."
     git clone https://github.com/Leo2Galli/UbuntuPanel
+else
+    echo "Repository già presente. Aggiornamento..."
+    cd UbuntuPanel
+    git pull
+    cd ..
 fi
 
 # Creazione dell'ambiente virtuale
