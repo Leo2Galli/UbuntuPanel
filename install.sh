@@ -9,75 +9,54 @@ echo "  il pannello di gestione hosting con Docker e supporto"
 echo "  multi-lingua."
 echo "=========================================================="
 
-# Funzione per rimuovere il pannello
-remove_panel() {
-    echo "Rimuovendo il pannello di gestione..."
-    sudo docker stop pannello || true
-    sudo docker rm pannello || true
-    sudo rm -rf /path/to/pannello-directory
-    echo "Pannello rimosso con successo."
-    exit 0
+install_package() {
+    if ! dpkg -l | grep -q "$1"; then
+        echo "Installazione di $1..."
+        sudo apt install -y "$1"
+    else
+        echo "$1 già installato."
+    fi
 }
 
-# Controllo se si desidera rimuovere il pannello
-if [[ "$1" == "remove" ]]; then
-    remove_panel
-fi
+echo "Controllo delle dipendenze..."
+install_package python3-pip
+install_package python3-venv
+install_package docker.io
+install_package npm
+install_package git
 
-echo "Benvenuto nel setup del Pannello di Gestione Hosting!"
-
-# Impostazioni predefinite
-lang="en"
-port=5000
-
-# Salva la configurazione in un file config.json
-echo "{ \"language\": \"$lang\", \"port\": $port }" > config.json
-
-# Aggiorna i pacchetti e installa Docker
-echo "Aggiornamento dei pacchetti e installazione di Docker, Git, Python e Node.js..."
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y docker.io git python3-pip python3-venv nodejs npm
-
-# Clona la repository
 if [ ! -d "UbuntuPanel" ]; then
-    echo "Clonazione della repository..."
-    git clone https://github.com/Leo2Galli/UbuntuPanel.git
+    echo "Clonazione del repository..."
+    git clone https://github.com/Leo2Galli/UbuntuPanel
+else
+    echo "Repository già presente. Aggiornamento..."
+    cd UbuntuPanel
+    git pull
+    cd ..
 fi
 
-# Naviga nella directory del progetto
-cd UbuntuPanel || { echo "Errore nella navigazione nella directory del progetto."; exit 1; }
+echo "Creazione di un ambiente virtuale..."
+python3 -m venv UbuntuPanel/venv
+source UbuntuPanel/venv/bin/activate
 
-# Crea un ambiente virtuale per Python
-echo "Creazione dell'ambiente virtuale Python..."
-python3 -m venv venv
-source venv/bin/activate
-
-# Installazione delle dipendenze Python
 echo "Installazione delle dipendenze Python..."
-pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r UbuntuPanel/requirements.txt
 
-# Verifica che npm sia installato
-if ! command -v npm &> /dev/null; then
-    echo "npm non è installato. Assicurati di aver installato Node.js correttamente."
-    exit 1
+cd UbuntuPanel
+if [ ! -d "node_modules" ]; then
+    echo "Installazione delle dipendenze Node.js..."
+    npm install
 fi
 
-# Installazione delle dipendenze React per il frontend
-echo "Installazione delle dipendenze frontend..."
-npm install
-npm run build
+read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
+port=${port_choice:-5000}
 
-# Avviare il backend
-echo "Avvio del backend..."
-python app.py &
+read -p "Vuoi configurare UFW per l'accesso esterno? (s/n): " ufw_choice
+if [ "$ufw_choice" == "s" ]; then
+    echo "Apertura della porta $port..."
+    sudo ufw allow $port
+fi
 
-# Configurazione UFW
-echo "Configurazione di UFW per l'accesso esterno..."
-sudo ufw allow $port/tcp
-sudo ufw enable
-echo "UFW configurato. Porta $port aperta."
-
-# Stampa l'indirizzo IP e la porta
-IP=$(hostname -I | awk '{print $1}')
-echo "Il pannello è accessibile all'indirizzo: http://$IP:$port"
+echo "Installazione completata!"
+echo "Avviare il pannello con il comando:"
+echo "cd UbuntuPanel && source venv/bin/activate && python app.py"
