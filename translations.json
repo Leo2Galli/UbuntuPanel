@@ -8,7 +8,11 @@
     "create": "Crea",
     "start": "Avvia",
     "stop": "Ferma",
-    "status": "Stato"
+    "status": "Stato",
+    "nodes": "Nodi",
+    "servers": "Server",
+    "add_node": "Aggiungi nodo",
+    "add_server": "Aggiungi server"
   },
   "en": {
     "title": "Hosting Management Panel",
@@ -19,7 +23,11 @@
     "create": "Create",
     "start": "Start",
     "stop": "Stop",
-    "status": "Status"
+    "status": "Status",
+    "nodes": "Nodes",
+    "servers": "Servers",
+    "add_node": "Add node",
+    "add_server": "Add server"
   },
   "es": {
     "title": "Panel de Gestión de Hosting",
@@ -30,7 +38,11 @@
     "create": "Crear",
     "start": "Iniciar",
     "stop": "Detener",
-    "status": "Estado"
+    "status": "Estado",
+    "nodes": "Nodos",
+    "servers": "Servidores",
+    "add_node": "Agregar nodo",
+    "add_server": "Agregar servidor"
   },
   "de": {
     "title": "Hosting-Management-Panel",
@@ -41,7 +53,11 @@
     "create": "Erstellen",
     "start": "Starten",
     "stop": "Stoppen",
-    "status": "Status"
+    "status": "Status",
+    "nodes": "Knoten",
+    "servers": "Server",
+    "add_node": "Knoten hinzufügen",
+    "add_server": "Server hinzufügen"
   },
   "zh": {
     "title": "托管管理面板",
@@ -52,6 +68,10 @@
     "create": "创建",
     "start": "启动",
     "stop": "停止",
-    "status": "状态"
+    "status": "状态",
+    "nodes": "节点",
+    "servers": "服务器",
+    "add_node": "添加节点",
+    "add_server": "添加服务器"
   }
 }
