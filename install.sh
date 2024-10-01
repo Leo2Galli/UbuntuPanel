@@ -1,89 +1,65 @@
 #!/bin/bash
-echo "=========================================================="
-echo "  Pannello di Gestione Hosting - Installazione"
-echo "  Versione: 1.0.1"
-echo "  Autore: Leo (https://github.com/Leo2Galli)"
-echo "  Data: 2024"
-echo "  Descrizione: Script di installazione per configurare"
-echo "  il pannello di gestione hosting con Docker e supporto"
-echo "  multi-lingua."
-echo "=========================================================="
 
-install_package() {
-    if ! dpkg -l | grep -q "$1"; then
-        echo "Installazione di $1..."
-        sudo apt install -y "$1"
+# Funzione per disinstallare il pannello
+function uninstall_panel {
+    read -p "Sei sicuro di voler disinstallare il pannello? (si/no): " confirm_uninstall
+    if [[ "$confirm_uninstall" == "si" ]]; then
+        echo "Rimozione del pannello..."
+        rm -rf ~/Scrivania/UbuntuPanel
+        sudo ufw delete allow 80/tcp
+        sudo ufw delete allow 443/tcp
+        echo "Disinstallazione completata!"
+        exit 0
     else
-        echo "$1 già installato."
+        echo "Disinstallazione annullata."
     fi
 }
 
-# Chiedi se disinstallare il pannello esistente
-if [ -d "UbuntuPanel" ]; then
-    read -p "Il pannello è già installato. Vuoi disinstallarlo? (s/n): " uninstall_choice
-    if [ "$uninstall_choice" == "s" ]; then
-        echo "Disinstallazione in corso..."
+# Verifica se esiste già la directory UbuntuPanel
+if [ -d "~/Scrivania/UbuntuPanel" ]; then
+    read -p "La directory UbuntuPanel esiste già. Vuoi rimuoverla prima di procedere? (si/no): " confirm
+    if [[ "$confirm" == "si" ]]; then
+        echo "Rimozione della cartella esistente..."
         rm -rf ~/Scrivania/UbuntuPanel
-        echo "Disinstallazione completata."
-        exit 0
+        echo "Cartella rimossa."
+    else
+        echo "Installazione annullata."
+        exit 1
     fi
 fi
 
-# Controlla e installa le dipendenze
-echo "Controllo delle dipendenze..."
-install_package python3-pip
-install_package python3-venv
-install_package docker.io
-install_package npm
-install_package git
+# Installazione dipendenze
+echo "Aggiornamento pacchetti..."
+sudo apt update
+echo "Installazione di Apache, PHP e UFW..."
+sudo apt install -y apache2 php libapache2-mod-php php-mysql ufw git curl
 
-# Clona o aggiorna il repository
-if [ ! -d "UbuntuPanel" ]; then
-    echo "Clonazione del repository..."
-    git clone https://github.com/Leo2Galli/UbuntuPanel
-else
-    echo "Repository già presente. Aggiornamento..."
-    cd UbuntuPanel
-    git pull
-    cd ..
-fi
+# Abilitazione Apache e configurazione UFW
+echo "Configurazione del firewall..."
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw reload
+sudo systemctl enable apache2
+sudo systemctl start apache2
 
-# Creazione di un ambiente virtuale
-echo "Creazione di un ambiente virtuale..."
-python3 -m venv UbuntuPanel/venv
-source UbuntuPanel/venv/bin/activate
+# Creazione della directory
+echo "Creazione della directory UbuntuPanel..."
+mkdir -p ~/Scrivania/UbuntuPanel
+cd ~/Scrivania/UbuntuPanel
 
-# Installazione delle dipendenze Python
-echo "Installazione delle dipendenze Python..."
-pip install -r UbuntuPanel/requirements.txt
+# Configurazione file
+echo "Configurazione pannello..."
+read -p "Inserisci il nome utente dell'amministratore: " admin_user
+read -s -p "Inserisci la password dell'amministratore: " admin_pass
+echo ""
 
-# Installazione delle dipendenze Node.js
-cd UbuntuPanel
-if [ ! -f "package.json" ]; then
-    echo "File package.json non trovato. Saltata l'installazione delle dipendenze Node.js."
-else
-    echo "Installazione delle dipendenze Node.js..."
-    npm install
-fi
+# Creazione file di configurazione
+cat <<EOL > config.php
+<?php
+session_start();
+define('ADMIN_USER', '$admin_user');
+define('ADMIN_PASS', password_hash('$admin_pass', PASSWORD_DEFAULT'));
+?>
+EOL
 
-# Chiedi all'utente di inserire la porta
-read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " port_choice
-port=${port_choice:-5000}
-
-# Configura UFW
-echo "Configurazione di UFW..."
-sudo ufw enable
-if sudo ufw status | grep -q "$port"; then
-    echo "La porta $port è già aperta."
-else
-    echo "Apertura della porta $port..."
-    sudo ufw allow $port
-fi
-
-# Modifica il file app.py per usare la porta specificata
-sed -i "s/port = int(os.getenv(\"PANEL_PORT\", 5000))/port = $port/g" UbuntuPanel/app.py
-
-# Messaggio di completamento
-echo "Installazione completata!"
-echo "Avviare il pannello con il comando:"
-echo "cd UbuntuPanel && source venv/bin/activate && python app.py"
+echo "Installazione completata. Vai su localhost per accedere al pannello."
