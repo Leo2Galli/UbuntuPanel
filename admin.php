@@ -1,25 +1,44 @@
-from flask import Flask, render_template, request
-import os
+<?php
+session_start();
+if (!isset($_SESSION['admin'])) {
+    header('Location: index.php');
+    exit;
+}
 
-app = Flask(__name__)
+$servers = json_decode(file_get_contents('servers.json'), true);
+?>
 
-# Porta configurabile dall'utente durante l'installazione
-port = int(os.getenv("PANEL_PORT", 5000))
-
-# Route per la homepage
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-# Route per la console
-@app.route('/console')
-def console():
-    return render_template('console.html')
-
-# Route per i grafici
-@app.route('/graphs')
-def graphs():
-    return render_template('graphs.html')
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=port, debug=True)
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello Amministratore</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Benvenuto, Amministratore</h1>
+        <a href="create_server.php">Crea nuovo server</a>
+        <h2>Gestione dei server</h2>
+        <table>
+            <tr>
+                <th>Nome Server</th>
+                <th>Porta</th>
+                <th>Stato</th>
+                <th>Azioni</th>
+            </tr>
+            <?php foreach ($servers as $server): ?>
+            <tr>
+                <td><?php echo $server['server_name']; ?></td>
+                <td><?php echo $server['server_port']; ?></td>
+                <td><?php echo $server['status']; ?></td>
+                <td>
+                    <a href="server.php?name=<?php echo $server['server_name']; ?>">Gestisci</a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+</body>
+</html>
