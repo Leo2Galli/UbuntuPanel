@@ -1,9 +1,6 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin'])) {
-    header('Location: index.php');
-    exit;
-}
+include('config.php');
+requireAuth();
 
 $servers = json_decode(file_get_contents('servers.json'), true);
 ?>
@@ -18,9 +15,9 @@ $servers = json_decode(file_get_contents('servers.json'), true);
 </head>
 <body>
     <div class="admin-container">
-        <h1>Benvenuto, Amministratore</h1>
-        <a href="create_server.php">Crea nuovo server</a>
-        <h2>Gestione dei server</h2>
+        <h1>Gestione Server</h1>
+        <a href="create_server.php">Crea un nuovo server</a>
+        <h2>Server Attuali</h2>
         <table>
             <tr>
                 <th>Nome Server</th>
@@ -34,7 +31,7 @@ $servers = json_decode(file_get_contents('servers.json'), true);
                 <td><?php echo $server['server_port']; ?></td>
                 <td><?php echo $server['status']; ?></td>
                 <td>
-                    <a href="server.php?name=<?php echo $server['server_name']; ?>">Gestisci</a>
+                    <a href="manage_server.php?server=<?php echo $server['server_name']; ?>">Gestisci</a>
                 </td>
             </tr>
             <?php endforeach; ?>
