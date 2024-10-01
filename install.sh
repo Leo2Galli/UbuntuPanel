@@ -1,65 +1,83 @@
 #!/bin/bash
 
-# Funzione per disinstallare il pannello
-function uninstall_panel {
-    read -p "Sei sicuro di voler disinstallare il pannello? (si/no): " confirm_uninstall
-    if [[ "$confirm_uninstall" == "si" ]]; then
-        echo "Rimozione del pannello..."
-        rm -rf ~/Scrivania/UbuntuPanel
-        sudo ufw delete allow 80/tcp
-        sudo ufw delete allow 443/tcp
-        echo "Disinstallazione completata!"
-        exit 0
-    else
-        echo "Disinstallazione annullata."
-    fi
+# Funzione per installare le dipendenze
+install_dependencies() {
+    echo "Creazione di un ambiente virtuale..."
+    python3 -m venv venv
+    echo "Installazione delle dipendenze Python..."
+    source venv/bin/activate
+    pip install flask flask_sqlalchemy flask_login
+    deactivate
+    echo "Installazione delle dipendenze completata."
 }
 
-# Verifica se esiste già la directory UbuntuPanel
-if [ -d "~/Scrivania/UbuntuPanel" ]; then
-    read -p "La directory UbuntuPanel esiste già. Vuoi rimuoverla prima di procedere? (si/no): " confirm
-    if [[ "$confirm" == "si" ]]; then
-        echo "Rimozione della cartella esistente..."
-        rm -rf ~/Scrivania/UbuntuPanel
-        echo "Cartella rimossa."
-    else
-        echo "Installazione annullata."
-        exit 1
+# Funzione per configurare il pannello
+configure_panel() {
+    echo "Configurazione del pannello..."
+    
+    # Richiesta del nome del pannello
+    read -p "Inserisci il nome del pannello: " PANEL_NAME
+    
+    # Richiesta dell'IP e della porta
+    read -p "Inserisci la porta su cui eseguire il pannello (default 5000): " PORT
+    PORT=${PORT:-5000}
+    
+    # Creazione del file di configurazione
+    echo "PORT = $PORT" > config.py
+    echo "PANEL_NAME = '$PANEL_NAME'" >> config.py
+
+    echo "Configurazione completata."
+}
+
+# Funzione per avviare il pannello
+start_panel() {
+    echo "Avvio del pannello..."
+    source venv/bin/activate
+    python app.py
+}
+
+# Funzione per disinstallare il pannello
+uninstall_panel() {
+    echo "Disinstallazione del pannello..."
+    rm -rf UbuntuPanel
+    echo "Pannello disinstallato con successo."
+}
+
+# Funzione principale
+main() {
+    # Controlla se il pannello è già installato
+    if [ -d "UbuntuPanel" ]; then
+        echo "Il pannello è già installato. Vuoi disinstallarlo? (s/n)"
+        read DISINSTALL
+        if [ "$DISINSTALL" == "s" ]; then
+            uninstall_panel
+            exit 0
+        else
+            echo "Continuando con l'installazione."
+        fi
     fi
-fi
+    
+    # Crea la cartella principale del pannello
+    mkdir UbuntuPanel
+    cd UbuntuPanel || exit
 
-# Installazione dipendenze
-echo "Aggiornamento pacchetti..."
-sudo apt update
-echo "Installazione di Apache, PHP e UFW..."
-sudo apt install -y apache2 php libapache2-mod-php php-mysql ufw git curl
+    # Scarica il repository da GitHub (sostituisci con il tuo URL)
+    echo "Clonazione del repository..."
+    git clone <YOUR_GITHUB_REPO_URL> .
 
-# Abilitazione Apache e configurazione UFW
-echo "Configurazione del firewall..."
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw reload
-sudo systemctl enable apache2
-sudo systemctl start apache2
+    # Installa le dipendenze
+    install_dependencies
 
-# Creazione della directory
-echo "Creazione della directory UbuntuPanel..."
-mkdir -p ~/Scrivania/UbuntuPanel
-cd ~/Scrivania/UbuntuPanel
+    # Configura il pannello
+    configure_panel
 
-# Configurazione file
-echo "Configurazione pannello..."
-read -p "Inserisci il nome utente dell'amministratore: " admin_user
-read -s -p "Inserisci la password dell'amministratore: " admin_pass
-echo ""
+    # Abilita il firewall per la porta
+    echo "Attivazione del firewall per la porta $PORT..."
+    ufw allow $PORT
 
-# Creazione file di configurazione
-cat <<EOL > config.php
-<?php
-session_start();
-define('ADMIN_USER', '$admin_user');
-define('ADMIN_PASS', password_hash('$admin_pass', PASSWORD_DEFAULT'));
-?>
-EOL
+    # Avvia il pannello
+    start_panel
+}
 
-echo "Installazione completata. Vai su localhost per accedere al pannello."
+# Avvio dello script
+main
